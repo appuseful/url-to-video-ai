@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>🎥 URL ➜ AI Wideo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      text-align: center;
+      padding: 40px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #00ffc3;
+    }
+
+    input[type="text"] {
+      width: 70%;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      margin-top: 10px;
+      box-shadow: 0 0 5px rgba(0,255,195,0.5);
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #00ffc3;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #00cfa2;
+    }
+
+    #result {
+      margin-top: 30px;
+    }
+
+    video {
+      margin-top: 20px;
+      max-width: 100%;
+      border: 4px solid #00ffc3;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,255,195,0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔗 Zamień link w wideo AI</h1>
+
+  <input type="text" id="url" placeholder="Wklej adres URL artykułu..." />
+  <br>
+  <button onclick="generateVideo()">🎬 Generuj wideo</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function generateVideo() {
+      const url = document.getElementById("url").value;
+      const result = document.getElementById("result");
+
+      if (!url) {
+        alert("Wprowadź poprawny URL.");
+        return;
+      }
+
+      result.innerHTML = "<p>⏳ Generowanie wideo, proszę czekać...</p>";
+
+      try {
+        const response = await fetch("http://localhost:5000/api/generate-video", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: url })
+        });
+
+        const data = await response.json();
+
+        if (data.videoUrl) {
+          result.innerHTML = `
+            <p>✅ Wideo wygenerowane pomyślnie:</p>
+            <video controls>
+              <source src="http://localhost:5000${data.videoUrl}" type="video/mp4">
+              Twoja przeglądarka nie obsługuje tagu <code>video</code>.
+            </video>
+          `;
+        } else {
+          result.innerHTML = "<p>❌ Błąd podczas generowania wideo.</p>";
+        }
+      } catch (err) {
+        result.innerHTML = `<p>❌ Wystąpił błąd: ${err.message}</p>`;
+      }
+    }
+  </script>
+
+</body>
+</html>
